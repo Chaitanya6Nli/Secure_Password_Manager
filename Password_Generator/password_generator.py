@@ -94,15 +94,16 @@ def main():
     # STEP 6: Encrypt password using Fernet
     key = load_key()
     fernet = Fernet(key)
-    encrypted_password = fernet.encrypt(password.encode()).decode()
+    encrypted_password = fernet.encrypt(password.encode()).decode() # This variable already holds the Fernet encrypted string.
 
     # STEP 7: Save encrypted password to file
     with open("saved_passwords.txt", "a") as file:
         timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-        encoded_password = base64.b64encode(password.encode()).decode()
+        # The 'encoded_password' (base64 of original password) was being saved previously.
+        # We should save the 'encrypted_password' (Fernet encrypted string) instead.
         file.write(f"\n[{timestamp}]\n")
         file.write(f"Label: {args.label}\n")
-        file.write(f"Encoded Password: {encoded_password}\n")
+        file.write(f"Encrypted Password: {encrypted_password}\n") # Save the Fernet encrypted password and use "Encrypted Password:" label
         file.write(f"Included - Lowercase: {args.lower}, Uppercase: {args.upper}, Digits: {args.digits}, Special Characters: {args.specials}\n")
         file.write("-" * 40 + "\n")
 
