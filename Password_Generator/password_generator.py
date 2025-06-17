@@ -26,6 +26,22 @@ def generate_password(length, use_lower, use_upper, use_digits, use_specials):
         password = password + random.choice(character_set)
     return password
 
+def check_strength(length, use_lower, use_upper, use_digits, use_specials):
+    score = 0
+
+    # Add points for character variety
+    score = score + use_lower + use_upper + use_digits + use_specials
+
+    if length >= 12:
+        score = score + 1
+
+    if score <= 2:
+        return "Weak"
+    elif score == 3 or score == 4:
+        return "Medium"
+    else:
+        return "Strong"
+
 # Get user inputs
 try:
     # Get password length
@@ -49,6 +65,8 @@ try:
         print(password) # just show the error message
     else:
         print("Your generated password is:", password)
+        strength = check_strength(length, lower, upper, digits, specials)
+        print(f"💪 Password Strength: {strength}")
 
         # Save to file
         with open("saved_passwords.txt", "a") as file:
