@@ -34,6 +34,9 @@ try:
         print("Password length must be positive. Try again.")
         exit()
 
+    # Ask user for label/tag
+    label = input("Enter a label or purpose for this password (e.g., Gmail, Netflix): ").strip()
+
     # Collect options from user
     lower = input("Include lowercase letters? (Y/N): ").strip().lower() == 'y'
     upper = input("Include uppercase letters? (Y/N): ").strip().lower() == 'y'
@@ -51,6 +54,7 @@ try:
         with open("saved_passwords.txt", "a") as file:
             timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             file.write(f"\n[{timestamp}]\n")
+            file.write(f"Label: {label}\n")
             # Encode the password before saving
             encoded_password = base64.b64encode(password.encode()).decode()
             file.write(f"Encoded Password: {encoded_password}\n")
