@@ -1,4 +1,4 @@
-import random
+import random, datetime
 
 def generate_password(length, use_lower, use_upper, use_digits, use_specials):
     lowercase = 'abcdefghijklmnopqrstuvwxyz'
@@ -46,6 +46,16 @@ try:
         print(password) # just show the error message
     else:
         print("Your generated password is:", password)
+
+        # Save to file
+        with open("saved_passwords.txt", "a") as file:
+            timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            file.write(f"\n[{timestamp}]\n")
+            file.write(f"Password: {password}\n")
+            file.write(f"Included - Lowercase: {lower}, Uppercase: {upper}, Digits: {digits}, Special Characters: {specials}\n")
+            file.write("-" * 40 + "\n")
+
+        print("✅ Password saved to 'saved_passwords.txt")
 
 except ValueError:
     print("Please enter a valid number.")
