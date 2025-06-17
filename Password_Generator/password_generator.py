@@ -1,6 +1,25 @@
-import random, datetime, base64, argparse
+import random, datetime, base64, argparse, os
+from cryptography.fernet import Fernet
 
-# 1. Generate password based on user options
+# 🔑 File where secret key will be stored
+KEY_FILE = "secret.key"
+
+# ------------------------------------------------------
+# STEP 1: Generate a new encryption key (only once))
+def generate_key():
+    key = Fernet.generate_key()
+    with open(KEY_FILE, "wb") as f:
+        f.write(key)
+
+# STEP 2: Load the ecryption key
+def load_key():
+    if not os.path.exists(KEY_FILE):
+        print("No Key found. Creating a new one...")
+        generate_key()
+    with open(KEY_FILE, "rb") as f:
+        return f.read()
+
+# STEP 3: Generate password based on user settings
 def generate_password(length, use_lower, use_upper, use_digits, use_specials):
     lowercase = 'abcdefghijklmnopqrstuvwxyz'
     uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -27,7 +46,7 @@ def generate_password(length, use_lower, use_upper, use_digits, use_specials):
         password = password + random.choice(character_set)
     return password
 
-# 2. Check password strength
+# STEP 4: Check password strength
 def check_strength(length, use_lower, use_upper, use_digits, use_specials):
     score = 0
 
@@ -44,7 +63,7 @@ def check_strength(length, use_lower, use_upper, use_digits, use_specials):
     else:
         return "Strong"
     
-# 3. Command-line interface using argparse
+# STEP 5: Command-line interface using argparse
 def main():
     parser = argparse.ArgumentParser(description="🔐 Password Generator Tool")
 
@@ -59,7 +78,7 @@ def main():
 
     # Validate length
     if args.length <= 0:
-        print("Password length must be positive. Try again.")
+        print("❌ Password length must be positive. Try again.")
         return
     
     # Generate and evaluate password
@@ -68,11 +87,16 @@ def main():
         print(password)
         return
     
-    print(f"Your generated password is: {password}")
+    print(f"✅ Your generated password is: {password}")
     strength = check_strength(args.length, args.lower, args.upper, args.digits, args.specials)
     print(f"💪 Password Strenght: {strength}")
 
-    # Save the file
+    # STEP 6: Encrypt password using Fernet
+    key = load_key()
+    fernet = Fernet(key)
+    encrypted_password = fernet.encrypt(password.encode()).decode()
+
+    # STEP 7: Save encrypted password to file
     with open("saved_passwords.txt", "a") as file:
         timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         encoded_password = base64.b64encode(password.encode()).decode()
@@ -82,7 +106,7 @@ def main():
         file.write(f"Included - Lowercase: {args.lower}, Uppercase: {args.upper}, Digits: {args.digits}, Special Characters: {args.specials}\n")
         file.write("-" * 40 + "\n")
 
-    print("✅ Password saved to 'saved_passwords.txt")
+    print("🔒 Password encrypted and saved to 'saved_passwords.txt")
 
 
 if __name__ == '__main__':
