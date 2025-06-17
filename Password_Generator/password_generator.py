@@ -1,42 +1,48 @@
 import random
 
-def generate_password(length=12, use_special_chars=True):
-    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+def generate_password(length, use_lower, use_upper, use_digits, use_specials):
+    lowercase = 'abcdefghijklmnopqrstuvwxyz'
+    uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     digits = '0123456789'
     specials = '!@#$%^&*()'
 
     # Build character set based on user input
-    if use_special_chars:
-        characters = letters + digits + specials
-    else:
-        characters = letters + digits
+    character_set = ''
+    
+    if use_lower:
+        character_set = character_set + lowercase
+    if use_upper:
+        character_set = character_set + uppercase
+    if use_digits:
+        character_set = character_set + digits
+    if use_specials:
+        character_set = character_set + specials
+
+    if not character_set:
+        return "Error: No character sets selected. Cannot generate password."
 
     password = ''
     for i in range(length):
-        password = password + random.choice(characters)
+        password = password + random.choice(character_set)
     return password
 
+# Get user inputs
 try:
     # Get password length
-    user_input = int(input("Enter desired password length (e.g., 8, 12, 16): "))
+    length = int(input("Enter desired password length (e.g., 8, 12, 16): "))
+    if length <= 0:
+        print("Password length must be positive. Try again.")
+        exit()
 
-    if user_input <= 0:
-        print("Password length must be a positive number. Try again.")
-    else:
-        # Ask if special characters should be included
-        special_choice = input("Include special characters? (Y/N): ").strip().lower() # trims space, converts to lowercase
+    # Collect options from user
+    lower = input("Include lowercase letters? (Y/N): ").strip().lower() == 'y'
+    upper = input("Include uppercase letters? (Y/N): ").strip().lower() == 'y'
+    digits = input("Include digits? (Y/N): ").strip().lower() == 'y'
+    specials = input("Include special characters? (Y/N): ").strip().lower() == 'y'
 
-        if special_choice == 'y':
-            use_specials = True
-        elif special_choice == 'n':
-            use_specials = False
-        else:
-            print("Invalid input. Please enter Y or N.")
-            exit() # stop execution if invalid input
-        
-        # Generate and show password
-        generated_password = generate_password(user_input, use_specials)
-        print("Your generated password is:", generated_password)
+    # Generate and display password
+    password = generate_password(length, lower, upper, digits, specials)
+    print("Your generated password is:", password)
 
 except ValueError:
     print("Please enter a valid number.")
