@@ -42,7 +42,10 @@ try:
 
     # Generate and display password
     password = generate_password(length, lower, upper, digits, specials)
-    print("Your generated password is:", password)
+    if password.startswith("Error"):
+        print(password) # just show the error message
+    else:
+        print("Your generated password is:", password)
 
 except ValueError:
     print("Please enter a valid number.")
