@@ -1,4 +1,4 @@
-import random, datetime
+import random, datetime, base64
 
 def generate_password(length, use_lower, use_upper, use_digits, use_specials):
     lowercase = 'abcdefghijklmnopqrstuvwxyz'
@@ -51,7 +51,9 @@ try:
         with open("saved_passwords.txt", "a") as file:
             timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             file.write(f"\n[{timestamp}]\n")
-            file.write(f"Password: {password}\n")
+            # Encode the password before saving
+            encoded_password = base64.b64encode(password.encode()).decode()
+            file.write(f"Encoded Password: {encoded_password}\n")
             file.write(f"Included - Lowercase: {lower}, Uppercase: {upper}, Digits: {digits}, Special Characters: {specials}\n")
             file.write("-" * 40 + "\n")
 
