@@ -1,6 +1,8 @@
-import random
+# Import necessary libraries
+import os, random, datetime
 from tkinter import *
 from tkinter import messagebox
+from cryptography.fernet import Fernet
 
 # Generate Password
 def generate_password(length, use_lower, use_upper, use_digits, use_specials):
@@ -46,6 +48,24 @@ def check_strength(length, use_lower, use_upper, use_digits, use_specials):
     else:
         return "Strong"
     
+# Get or generate encryption key
+def load_key():
+    if not os.path.exists("secret.key"):
+        key = Fernet.generate_key()
+        with open("secret.key", "wb") as key_file:
+            key_file.write(key)
+        print("🔐 Key generated.")
+    else:
+        print("🔑 Key loaded.")
+
+    with open ("secret.key", "rb") as key_file:
+        return key_file.read()
+    
+# Encrypt password using key
+def encrypt_password(password, key):
+    fernet = Fernet(key)
+    return fernet.encrypt(password.encode()).decode()
+
 # On generate click
 def on_generate_click():
     try:
@@ -72,6 +92,20 @@ def on_generate_click():
             "Password Generated",
             f"🔐 Label: {label}\n\nPassword: {password}\n\n💪 Strength: {strength}"
         )
+
+        # Save to file (encrypted)
+        key = load_key()
+        encrypted = encrypt_password(password, key)
+
+        with open("saved_password.txt", "a") as file:
+            timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            file.write(f"\n[{timestamp}]\n")
+            file.write(f"Label: {label}\n")
+            file.write(f"Encrypted Password: {encrypted}\n")
+            file.write(f"Strength: {strength}\n")
+            file.write("-" * 40 + "\n")
+
+        messagebox.showinfo("✅ Saved", f"Password saved securely to file.")
 
     except ValueError:
         messagebox.showerror("Invalid Input", "Enter a valid number for length.")
@@ -119,16 +153,16 @@ use_upper = BooleanVar()
 use_digits = BooleanVar()
 use_specials = BooleanVar()
 
-lower_cb = Checkbutton(frame, text="Include lowercase letters", variable=use_lower, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+lower_cb = Checkbutton(frame, text="Include lowercase letters", variable=use_lower, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2", selectcolor="blue")
 lower_cb.grid(row=3, column=0, columnspan=2, pady=(30, 20), )
 
-upper_cb = Checkbutton(frame, text="Include Uppercase letters", variable=use_upper, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+upper_cb = Checkbutton(frame, text="Include Uppercase letters", variable=use_upper, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2", selectcolor="blue")
 upper_cb.grid(row=4, column=0, columnspan=2, pady=(0, 20))
 
-digits_cb = Checkbutton(frame, text="Include digits", variable=use_digits, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+digits_cb = Checkbutton(frame, text="Include digits", variable=use_digits, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2", selectcolor="blue")
 digits_cb.grid(row=5, column=0, columnspan=2, pady=(0, 20))
 
-specials_cb = Checkbutton(frame, text="Include special characters", variable=use_specials, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+specials_cb = Checkbutton(frame, text="Include special characters", variable=use_specials, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2", selectcolor="blue")
 specials_cb.grid(row=6, column=0, columnspan=2, pady=(0, 30))
 
 # # Button to generate password
