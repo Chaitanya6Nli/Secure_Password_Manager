@@ -97,7 +97,7 @@ def on_generate_click():
         key = load_key()
         encrypted = encrypt_password(password, key)
 
-        with open("saved_password.txt", "a") as file:
+        with open("saved_passwords.txt", "a") as file:
             timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             file.write(f"\n[{timestamp}]\n")
             file.write(f"Label: {label}\n")
