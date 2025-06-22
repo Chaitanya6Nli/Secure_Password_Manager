@@ -1,9 +1,87 @@
-import tkinter
+import random
+from tkinter import *
+from tkinter import messagebox
+
+# Generate Password
+def generate_password(length, use_lower, use_upper, use_digits, use_specials):
+    lowercase = 'abcdefghijklmnopqrstuvwxyz'
+    uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    specials = '!@#$%^&*()'
+
+    # Build character set based on user input
+    character_set = ''
+    
+    if use_lower:
+        character_set = character_set + lowercase
+    if use_upper:
+        character_set = character_set + uppercase
+    if use_digits:
+        character_set = character_set + digits
+    if use_specials:
+        character_set = character_set + specials
+
+    if not character_set:
+        return "Error: No character sets selected. Cannot generate password."
+
+    password = ''
+    for i in range(length):
+        password = password + random.choice(character_set)
+    return password
+
+# Check password strength
+def check_strength(length, use_lower, use_upper, use_digits, use_specials):
+    score = 0
+
+    # Add points for character variety
+    score = score + use_lower + use_upper + use_digits + use_specials
+
+    if length >= 12:
+        score = score + 1
+
+    if score <= 2:
+        return "Weak"
+    elif score == 3 or score == 4:
+        return "Medium"
+    else:
+        return "Strong"
+    
+# On generate click
+def on_generate_click():
+    try:
+        length_input = password_length_entry.get().strip()
+        length = int(length_input) if length_input else 12
+        label = purpose_entry.get().strip() or "Unnamed"
+        lower = use_lower.get()
+        upper = use_upper.get()
+        digits = use_digits.get()
+        specials = use_specials.get()
+
+        if length <= 0:
+            messagebox.showerror("Invalid Input", "Password length must be positive.")
+            return
+
+        password = generate_password(length, lower, upper, digits, specials)
+        if password.startswith("Error"):
+            messagebox.showwarning("Oops", password)
+            return
+
+        strength = check_strength(length, lower, upper, digits, specials)
+
+        messagebox.showinfo(
+            "Password Generated",
+            f"🔐 Label: {label}\n\nPassword: {password}\n\n💪 Strength: {strength}"
+        )
+
+    except ValueError:
+        messagebox.showerror("Invalid Input", "Enter a valid number for length.")
+
+
 
 # Create the main window
-window = tkinter.Tk()
+window = Tk()
 window.title("Password Book")
-icon = tkinter.PhotoImage(file="icons8-password-book-24.png")
+icon = PhotoImage(file="icons8-password-book-24.png")
 window.iconphoto(False, icon)
 window.geometry('900x700')
 window.configure(bg='dark slate gray')
@@ -11,10 +89,10 @@ window.resizable(False, False)                           # Fixed size window
 
 
 # Create a frame inside the main window
-frame = tkinter.Frame(bg='dark slate gray')
+frame = Frame(bg='dark slate gray')
 
 # Add a welcome label
-welcome_label = tkinter.Label(frame, text="Welcome to your Password Manager!", bg='dark slate gray', fg="azure", font="fixedsys 30 bold")
+welcome_label = Label(frame, text="Welcome to your Password Manager!", bg='dark slate gray', fg="azure", font="fixedsys 30 bold")
 welcome_label.grid(row=0, column=0, columnspan=2, sticky="news", pady=40)
 
 # ------------------------
@@ -22,41 +100,41 @@ welcome_label.grid(row=0, column=0, columnspan=2, sticky="news", pady=40)
 # ------------------------
 
 # Label for service/platform name (like Google, Gmail, Netflix)
-purpose_label = tkinter.Label(frame, text="Enter a label or purpose for this password:", bg='dark slate gray', fg="ivory2", font=("Arial", 16))
+purpose_label = Label(frame, text="Enter a label or purpose for this password:", bg='dark slate gray', fg="ivory2", font=("Arial", 16))
 purpose_label.grid(row=1, column=0)
 
-purpose_entry = tkinter.Entry(frame, font=("Arial", 16))
+purpose_entry = Entry(frame, font=("Arial", 16))
 purpose_entry.grid(row=1, column=1, pady=20)
 
 # Label for Password length
-password_length_lable = tkinter.Label(frame, text="Enter desired password length:", bg='dark slate gray', fg="ivory2", font=("Arial", 16))
+password_length_lable = Label(frame, text="Enter desired password length:", bg='dark slate gray', fg="ivory2", font=("Arial", 16))
 password_length_lable.grid(row=2, column=0)
 
-password_length_entry = tkinter.Entry(frame, font=("Arial", 16))
-password_length_entry.insert(0, "12 (default)")
+password_length_entry = Entry(frame, font=("Arial", 16))
 password_length_entry.grid(row=2, column=1, pady=20)
 
 # Checkboxes for character types
-use_lower = tkinter.BooleanVar()
-use_upper = tkinter.BooleanVar()
-use_digits = tkinter.BooleanVar()
-use_specials = tkinter.BooleanVar()
+use_lower = BooleanVar()
+use_upper = BooleanVar()
+use_digits = BooleanVar()
+use_specials = BooleanVar()
 
-lower_cb = tkinter.Checkbutton(frame, text="Include lowercase letters", variable=use_lower, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+lower_cb = Checkbutton(frame, text="Include lowercase letters", variable=use_lower, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
 lower_cb.grid(row=3, column=0, columnspan=2, pady=(30, 20), )
 
-upper_cb = tkinter.Checkbutton(frame, text="Include Uppercase letters", variable=use_upper, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+upper_cb = Checkbutton(frame, text="Include Uppercase letters", variable=use_upper, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
 upper_cb.grid(row=4, column=0, columnspan=2, pady=(0, 20))
 
-digits_cb = tkinter.Checkbutton(frame, text="Include digits", variable=use_digits, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+digits_cb = Checkbutton(frame, text="Include digits", variable=use_digits, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
 digits_cb.grid(row=5, column=0, columnspan=2, pady=(0, 20))
 
-specials_cb = tkinter.Checkbutton(frame, text="Include special characters", variable=use_specials, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
+specials_cb = Checkbutton(frame, text="Include special characters", variable=use_specials, width=20, bg="dark slate gray", font=('Helvetica', 12, 'bold'), fg="ivory2")
 specials_cb.grid(row=6, column=0, columnspan=2, pady=(0, 30))
 
 # # Button to generate password
-generate_btn = tkinter.Button(frame, text="Generate Password", bg="slate gray", fg="ivory2", font="Arial 16 bold")
+generate_btn = Button(frame, text="Generate Password", bg="slate gray", fg="ivory2", font="Arial 16 bold")
 generate_btn.grid(row=7, column=0, columnspan=2, pady=30)
+generate_btn.config(command=on_generate_click)
 
 
 # Pack the frame
