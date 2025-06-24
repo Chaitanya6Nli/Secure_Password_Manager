@@ -90,7 +90,7 @@ Files like `secret.key` and `saved_passwords.txt` are excluded from version cont
 ## ⚙️ Setup Instructions
 
 1. Clone the repo  
-   `git clone https://github.com/your-username/password-manager.git`
+   `git clone https://github.com/Your-Username/Secure_Password_Manager.git`
 
 2. Install dependencies  
    `pip install cryptography`
