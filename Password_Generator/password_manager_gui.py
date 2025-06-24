@@ -121,6 +121,78 @@ def on_generate_click():
 
     messagebox.showinfo("✅ Saved", "Password saved securely to file.")  
 
+def on_view_passwords_click():
+    try:
+        key = load_key()
+        fernet = Fernet(key)
+
+        # Check if saved passwords file exists
+        if not os.path.exists("saved_passwords.txt"):
+            messagebox.showinfo("No Data", "No saved passwords found.")
+            return
+        
+         # Read the file
+        with open("saved_passwords.txt", "r") as file:
+            lines = file.readlines()
+
+        display_data = []
+        current = {}
+
+        # Parse each line
+        for line in lines:
+            line = line.strip()
+            if line.startswith('['): # timestamp line
+                current["Time"] = line
+            elif line.startswith("Label:"):
+                current["Label"] = line.replace("Label: ", "")
+            elif line.startswith("Encrypted Password:"):
+                encrypted = line.replace("Encrypted Password: ", "")
+                try:
+                    decrypted = fernet.decrypt(encrypted.encode()).decode()
+                except Exception:
+                    decrypted = "❌ Could not decrypt"
+                current["Password"] = decrypted
+            elif line.startswith("Strength:"):
+                current["Strength"] = line.replace("Strength: ", "")
+            elif line.startswith("-"):
+                # end of entry
+                display_data.append(current)
+                current = {}
+
+        # If nothing parsed
+        if not display_data:
+            messagebox.showinfo("Empty", "No valid entried found.")
+            return
+        
+        # --------------------
+        # New GUI Window to Display Saved Passwords
+        # --------------------
+        top = Toplevel(window)
+        top.title("Saved Passwords")
+        top.geometry("800x500")
+        top.config(bg="dark slate gray")
+
+        # Create scrollbar
+        scrollbar = Scrollbar(top)
+        scrollbar.pack(side=RIGHT, fill=Y)
+
+        # Create text area and bind it to scrollbar
+        text = Text(top, wrap=WORD, yscrollcommand=scrollbar.set, font="Consolas 12", bg="black", fg="light green")
+        text.pack(expand=True, fill=BOTH)
+
+        for entry in display_data:
+            text.insert(END, f"{entry['Time']}\n")
+            text.insert(END, f"🔖 Label: {entry['Label']}\n")
+            text.insert(END, f"🔐 Password: {entry['Password']}\n")
+            text.insert(END, f"💪 Strength: {entry['Strength']}\n")
+            text.insert(END, "-" * 40 + "\n\n")
+
+        text.config(state=DISABLED)
+        scrollbar.config(command=text.yview)
+
+    except Exception as e:
+        messagebox.showerror("Error", f"Something went wrong:\n{str(e)}")
+
 # ------------------------
 # GUI LAYOUT
 # ------------------------
@@ -173,6 +245,11 @@ Checkbutton(frame, text="Include special characters", variable=use_specials, wid
 # Generate button
 generate_btn = Button(frame, text="Generate Password", bg="slate gray", fg="ivory2", font="Arial 16 bold", command=on_generate_click)
 generate_btn.grid(row=8, column=0, columnspan=2, pady=30)
+
+# View passwords button
+view_btn = Button(frame, text="View Saved Passwords", bg="slate gray", fg="ivory2", font="Arial 16 bold")
+view_btn.grid(row=9, column=0, columnspan=2)
+view_btn.config(command=on_view_passwords_click)
 
 # Pack the frame
 frame.pack()
